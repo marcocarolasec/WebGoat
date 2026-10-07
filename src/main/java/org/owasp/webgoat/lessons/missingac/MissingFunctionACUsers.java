@@ -51,10 +51,14 @@ public class MissingFunctionACUsers {
       path = {"access-control/users"},
       consumes = "application/json")
   @ResponseBody
-  public ResponseEntity<List<DisplayUser>> usersService() {
+  public ResponseEntity<List<DisplayUser>> usersService(@CurrentUsername String username) {
+    var currentUser = userRepository.findByUsername(username);
+    if (currentUser == null || !currentUser.isAdmin()) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
     return ResponseEntity.ok(
         userRepository.findAllUsers().stream()
-            .map(user -> new DisplayUser(user, PASSWORD_SALT_SIMPLE))
+            .map(user -> new DisplayUser(user, PASSWORD_SALT_ADMIN))
             .collect(Collectors.toList()));
   }
 

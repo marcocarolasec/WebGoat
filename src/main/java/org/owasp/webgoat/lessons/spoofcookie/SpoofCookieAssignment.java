@@ -11,6 +11,7 @@ import static org.owasp.webgoat.container.assignments.AttackResultBuilder.succes
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.owasp.webgoat.container.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.container.assignments.AssignmentHints;
@@ -42,6 +43,7 @@ public class SpoofCookieAssignment implements AssignmentEndpoint {
 
   private static final Map<String, String> users =
       Map.of("webgoat", "webgoat", "admin", "admin", ATTACK_USERNAME, "apasswordfortom");
+  private static final Map<String, String> issuedCookies = new ConcurrentHashMap<>();
 
   @PostMapping(path = "/SpoofCookie/login")
   @ResponseBody
@@ -77,6 +79,7 @@ public class SpoofCookieAssignment implements AssignmentEndpoint {
     String authPassword = users.getOrDefault(lowerCasedUsername, "");
     if (!authPassword.isBlank() && authPassword.equals(password)) {
       String newCookieValue = EncDec.encode(lowerCasedUsername);
+      issuedCookies.put(newCookieValue, lowerCasedUsername);
       Cookie newCookie = new Cookie(COOKIE_NAME, newCookieValue);
       newCookie.setPath("/WebGoat");
       newCookie.setSecure(true);
@@ -91,12 +94,9 @@ public class SpoofCookieAssignment implements AssignmentEndpoint {
   }
 
   private AttackResult cookieLoginFlow(String cookieValue) {
-    String cookieUsername;
-    try {
-      cookieUsername = EncDec.decode(cookieValue).toLowerCase();
-    } catch (Exception e) {
-      // for providing some instructive guidance, we won't return 4xx error here
-      return failed(this).output(e.getMessage()).build();
+    String cookieUsername = issuedCookies.get(cookieValue);
+    if (cookieUsername == null) {
+      return failed(this).feedback("spoofcookie.wrong-cookie").build();
     }
     if (users.containsKey(cookieUsername)) {
       if (cookieUsername.equals(ATTACK_USERNAME)) {
