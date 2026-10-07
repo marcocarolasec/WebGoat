@@ -213,6 +213,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
+    registry.addInterceptor(new LessonSecurityInterceptor());
     registry.addInterceptor(localeChangeInterceptor());
     registry.addInterceptor(new UserInterceptor());
   }
