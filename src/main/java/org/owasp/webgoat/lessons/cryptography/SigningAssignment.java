@@ -53,25 +53,6 @@ public class SigningAssignment implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult completed(
       HttpServletRequest request, @RequestParam String modulus, @RequestParam String signature) {
-
-    String tempModulus =
-        modulus; /* used to validate the modulus of the public key but might need to be corrected */
-    KeyPair keyPair = (KeyPair) request.getSession().getAttribute("keyPair");
-    RSAPublicKey rsaPubKey = (RSAPublicKey) keyPair.getPublic();
-    if (tempModulus.length() == 512) {
-      tempModulus = "00".concat(tempModulus);
-    }
-    if (!DatatypeConverter.printHexBinary(rsaPubKey.getModulus().toByteArray())
-        .equals(tempModulus.toUpperCase())) {
-      log.warn("modulus {} incorrect", modulus);
-      return failed(this).feedback("crypto-signing.modulusnotok").build();
-    }
-    /* orginal modulus must be used otherwise the signature would be invalid */
-    if (CryptoUtil.verifyMessage(modulus, signature, keyPair.getPublic())) {
-      return success(this).feedback("crypto-signing.success").build();
-    } else {
-      log.warn("signature incorrect");
-      return failed(this).feedback("crypto-signing.notok").build();
-    }
+    return failed(this).feedback("crypto-signing.notok").build();
   }
 }

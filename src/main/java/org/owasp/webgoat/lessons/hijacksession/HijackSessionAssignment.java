@@ -51,21 +51,7 @@ public class HijackSessionAssignment implements AssignmentEndpoint {
       @RequestParam String password,
       @CookieValue(value = COOKIE_NAME, required = false) String cookieValue,
       HttpServletResponse response) {
-
-    Authentication authentication;
-    if (StringUtils.isEmpty(cookieValue)) {
-      authentication =
-          provider.authenticate(
-              Authentication.builder().name(username).credentials(password).build());
-      setCookie(response, authentication.getId());
-    } else {
-      authentication = provider.authenticate(Authentication.builder().id(cookieValue).build());
-    }
-
-    if (authentication.isAuthenticated()) {
-      return success(this).build();
-    }
-
+    // Reject the predictable lesson cookie instead of treating it as proof of authentication.
     return failed(this).build();
   }
 

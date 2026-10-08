@@ -4,6 +4,7 @@
  */
 package org.owasp.webgoat.lessons.challenges.challenge7;
 
+import static org.owasp.webgoat.container.assignments.AttackResultBuilder.failed;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.success;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,14 +64,6 @@ public class Assignment7 implements AssignmentEndpoint {
 
   @GetMapping("/challenge/7/reset-password/{link}")
   public ResponseEntity<String> resetPassword(@PathVariable(value = "link") String link) {
-    if (link.equals(ADMIN_PASSWORD_LINK)) {
-      return ResponseEntity.accepted()
-          .body(
-              "<h1>Success!!</h1>"
-                  + "<img src='/WebGoat/images/hi-five-cat.jpg'>"
-                  + "<br/><br/>Here is your flag: "
-                  + flags.getFlag(7));
-    }
     return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT)
         .body("That is not the reset link for admin");
   }
@@ -79,31 +72,12 @@ public class Assignment7 implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult sendPasswordResetLink(@RequestParam String email, HttpServletRequest request)
       throws URISyntaxException {
-    if (StringUtils.hasText(email)) {
-      String username = email.substring(0, email.indexOf("@"));
-      if (StringUtils.hasText(username)) {
-        URI uri = new URI(request.getRequestURL().toString());
-        Email mail =
-            Email.builder()
-                .title("Your password reset link for challenge 7")
-                .contents(
-                    String.format(
-                        TEMPLATE,
-                        uri.getScheme() + "://" + uri.getHost(),
-                        new PasswordResetLink().createPasswordReset(username, "webgoat")))
-                .sender("password-reset@webgoat-cloud.net")
-                .recipient(username)
-                .time(LocalDateTime.now())
-                .build();
-        restTemplate.postForEntity(webWolfMailURL, mail, Object.class);
-      }
-    }
-    return success(this).feedback("email.send").feedbackArgs(email).build();
+    return failed(this).feedback("challenge.close").build();
   }
 
   @GetMapping(value = "/challenge/7/.git", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   @ResponseBody
   public ClassPathResource git() {
-    return new ClassPathResource("lessons/challenges/challenge7/git.zip");
+    return null;
   }
 }
