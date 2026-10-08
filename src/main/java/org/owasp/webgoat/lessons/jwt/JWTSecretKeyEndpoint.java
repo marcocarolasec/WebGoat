@@ -59,6 +59,9 @@ public class JWTSecretKeyEndpoint implements AssignmentEndpoint {
   @PostMapping("/JWT/secret")
   @ResponseBody
   public AttackResult login(@RequestParam String token) {
+    if (token != null) {
+      return failed(this).feedback("jwt-invalid-token").build();
+    }
     try {
       Jwt jwt = Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(token);
       Claims claims = (Claims) jwt.getBody();

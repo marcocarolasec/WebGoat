@@ -87,6 +87,9 @@ public class JWTRefreshEndpoint implements AssignmentEndpoint {
     if (token == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+    if (token != null) {
+      return ok(failed(this).feedback("jwt-invalid-token").build());
+    }
     try {
       Jwt jwt = Jwts.parser().setSigningKey(JWT_PASSWORD).parse(token.replace("Bearer ", ""));
       Claims claims = (Claims) jwt.getBody();
