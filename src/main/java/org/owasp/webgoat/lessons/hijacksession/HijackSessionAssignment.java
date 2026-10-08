@@ -51,7 +51,19 @@ public class HijackSessionAssignment implements AssignmentEndpoint {
       @RequestParam String password,
       @CookieValue(value = COOKIE_NAME, required = false) String cookieValue,
       HttpServletResponse response) {
-    // Reject the predictable lesson cookie instead of treating it as proof of authentication.
+    Authentication authentication;
+    if (StringUtils.isEmpty(cookieValue)) {
+      authentication =
+          provider.authenticate(
+              Authentication.builder().name(username).credentials(password).build());
+      setCookie(response, authentication.getId());
+    } else {
+      authentication = provider.authenticate(Authentication.builder().id(cookieValue).build());
+    }
+
+    if (authentication.isAuthenticated()) {
+      return success(this).build();
+    }
     return failed(this).build();
   }
 
@@ -59,6 +71,7 @@ public class HijackSessionAssignment implements AssignmentEndpoint {
     Cookie cookie = new Cookie(COOKIE_NAME, cookieValue);
     cookie.setPath("/WebGoat");
     cookie.setSecure(true);
+    cookie.setHttpOnly(true);
     response.addCookie(cookie);
   }
 }
