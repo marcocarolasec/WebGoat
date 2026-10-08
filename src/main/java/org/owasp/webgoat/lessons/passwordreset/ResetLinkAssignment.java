@@ -70,27 +70,16 @@ public class ResetLinkAssignment implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult login(
       @RequestParam String password, @RequestParam String email, @CurrentUsername String username) {
-    if (TOM_EMAIL.equals(email)) {
-      String passwordTom = usersToTomPassword.getOrDefault(username, PASSWORD_TOM_9);
-      if (!passwordTom.equals(PASSWORD_TOM_9) && passwordTom.equals(password)) {
-        return success(this).build();
-      }
-    }
+    // Never authenticate the shared lesson account with state created by another reset flow.
     return failed(this).feedback("login_failed.tom").build();
   }
 
   @GetMapping("/PasswordReset/reset/reset-password/{link}")
   public ModelAndView resetPassword(@PathVariable(value = "link") String link, Model model) {
     ModelAndView modelAndView = new ModelAndView();
-    if (ResetLinkAssignment.resetLinks.contains(link)) {
-      PasswordChangeForm form = new PasswordChangeForm();
-      form.setResetLink(link);
-      model.addAttribute("form", form);
-      modelAndView.addObject("form", form);
-      modelAndView.setViewName(VIEW_FORMATTER.formatted("password_reset"));
-    } else {
-      modelAndView.setViewName(VIEW_FORMATTER.formatted("password_link_not_found"));
-    }
+    // Reset tokens must be scoped to an account and stored as one-time hashes. The lesson's
+    // process-wide list cannot establish token ownership, so reject it.
+    modelAndView.setViewName(VIEW_FORMATTER.formatted("password_link_not_found"));
     return modelAndView;
   }
 
@@ -111,11 +100,7 @@ public class ResetLinkAssignment implements AssignmentEndpoint {
       modelAndView.setViewName(VIEW_FORMATTER.formatted("password_link_not_found"));
       return modelAndView;
     }
-    if (checkIfLinkIsFromTom(form.getResetLink(), username)) {
-      usersToTomPassword.put(username, form.getPassword());
-    }
-    resetLinks.remove(form.getResetLink());
-    modelAndView.setViewName(VIEW_FORMATTER.formatted("success"));
+    modelAndView.setViewName(VIEW_FORMATTER.formatted("password_link_not_found"));
     return modelAndView;
   }
 
