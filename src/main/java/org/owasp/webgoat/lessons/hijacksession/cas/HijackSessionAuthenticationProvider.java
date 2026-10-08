@@ -4,10 +4,8 @@
  */
 package org.owasp.webgoat.lessons.hijacksession.cas;
 
-import java.time.Instant;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.DoublePredicate;
@@ -27,7 +25,6 @@ import org.springframework.web.context.annotation.ApplicationScope;
 public class HijackSessionAuthenticationProvider implements AuthenticationProvider<Authentication> {
 
   private Queue<String> sessions = new LinkedList<>();
-  private static long id = new Random().nextLong() & Long.MAX_VALUE;
   protected static final int MAX_SESSIONS = 50;
 
   private static final DoublePredicate PROBABILITY_DOUBLE_PREDICATE = pr -> pr < 0.75;
@@ -58,8 +55,11 @@ public class HijackSessionAuthenticationProvider implements AuthenticationProvid
   }
 
   protected void authorizedUserAutoLogin() {
-    // Never create authenticated sessions without a successful login. The former background
-    // session generation exposed IDs that could be predicted and replayed by another user.
+    if (!PROBABILITY_DOUBLE_PREDICATE.test(ThreadLocalRandom.current().nextDouble())) {
+      Authentication authentication = AUTHENTICATION_SUPPLIER.get();
+      authentication.setAuthenticated(true);
+      addSession(authentication.getId());
+    }
   }
 
   protected boolean addSession(String sessionId) {
