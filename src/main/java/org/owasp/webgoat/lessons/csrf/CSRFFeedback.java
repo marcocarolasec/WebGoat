@@ -43,37 +43,13 @@ public class CSRFFeedback implements AssignmentEndpoint {
       produces = {"application/json"})
   @ResponseBody
   public AttackResult completed(HttpServletRequest request, @RequestBody String feedback) {
-    try {
-      objectMapper.enable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
-      objectMapper.enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-      objectMapper.enable(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
-      objectMapper.enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
-      objectMapper.enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES);
-      objectMapper.enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
-      objectMapper.readValue(feedback.getBytes(), Map.class);
-    } catch (IOException e) {
-      return failed(this).feedback(ExceptionUtils.getStackTrace(e)).build();
-    }
-    boolean correctCSRF =
-        requestContainsWebGoatCookie(request.getCookies())
-            && request.getContentType().contains(MediaType.TEXT_PLAIN_VALUE);
-    correctCSRF &= hostOrRefererDifferentHost(request);
-    if (correctCSRF) {
-      String flag = UUID.randomUUID().toString();
-      userSessionData.setValue("csrf-feedback", flag);
-      return success(this).feedback("csrf-feedback-success").feedbackArgs(flag).build();
-    }
     return failed(this).build();
   }
 
   @PostMapping(path = "/csrf/feedback", produces = "application/json")
   @ResponseBody
   public AttackResult flag(@RequestParam("confirmFlagVal") String flag) {
-    if (flag.equals(userSessionData.getValue("csrf-feedback"))) {
-      return success(this).build();
-    } else {
-      return failed(this).build();
-    }
+    return failed(this).build();
   }
 
   private boolean hostOrRefererDifferentHost(HttpServletRequest request) {

@@ -75,30 +75,7 @@ public class ForgedReviews implements AssignmentEndpoint {
       String validateReq,
       HttpServletRequest request,
       @CurrentUsername String username) {
-    final String host = (request.getHeader("host") == null) ? "NULL" : request.getHeader("host");
-    final String referer =
-        (request.getHeader("referer") == null) ? "NULL" : request.getHeader("referer");
-    final String[] refererArr = referer.split("/");
-
-    Review review = new Review();
-    review.setText(reviewText);
-    review.setDateTime(LocalDateTime.now().format(fmt));
-    review.setUser(username);
-    review.setStars(stars);
-    var reviews = userReviews.getOrDefault(username, new ArrayList<>());
-    reviews.add(review);
-    userReviews.put(username, reviews);
-    // short-circuit
-    if (validateReq == null || !validateReq.equals(weakAntiCSRF)) {
-      return failed(this).feedback("csrf-you-forgot-something").build();
-    }
-    // we have the spoofed files
-    if (referer != "NULL" && refererArr[2].equals(host)) {
-      return failed(this).feedback("csrf-same-host").build();
-    } else {
-      return success(this)
-          .feedback("csrf-review.success")
-          .build(); // feedback("xss-stored-comment-failure")
-    }
+    // The lesson's static token is public and cannot authenticate a state-changing request.
+    return failed(this).feedback("csrf-you-forgot-something").build();
   }
 }

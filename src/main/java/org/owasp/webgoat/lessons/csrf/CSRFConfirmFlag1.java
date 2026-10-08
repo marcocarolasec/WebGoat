@@ -31,14 +31,6 @@ public class CSRFConfirmFlag1 implements AssignmentEndpoint {
       produces = {"application/json"})
   @ResponseBody
   public AttackResult completed(String confirmFlagVal) {
-    Object userSessionDataStr = userSessionData.getValue("csrf-get-success");
-    if (userSessionDataStr != null && confirmFlagVal.equals(userSessionDataStr.toString())) {
-      return success(this)
-          .feedback("csrf-get-null-referer.success")
-          .output("Correct, the flag was " + userSessionData.getValue("csrf-get-success"))
-          .build();
-    }
-
     return failed(this).build();
   }
 }

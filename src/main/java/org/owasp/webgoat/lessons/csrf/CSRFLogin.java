@@ -24,9 +24,6 @@ public class CSRFLogin implements AssignmentEndpoint {
       produces = {"application/json"})
   @ResponseBody
   public AttackResult completed(@CurrentUsername String username) {
-    if (username.startsWith("csrf")) {
-      return success(this).feedback("csrf-login-success").build();
-    }
     return failed(this).feedback("csrf-login-failed").feedbackArgs(username).build();
   }
 }
