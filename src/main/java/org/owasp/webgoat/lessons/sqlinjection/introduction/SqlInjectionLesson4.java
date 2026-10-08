@@ -36,6 +36,9 @@ public class SqlInjectionLesson4 implements AssignmentEndpoint {
   @PostMapping("/SqlInjection/attack4")
   @ResponseBody
   public AttackResult completed(@RequestParam String query) {
+    if (query != null) {
+      return failed(this).build();
+    }
     return injectableQuery(query);
   }
 

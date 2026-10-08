@@ -41,6 +41,9 @@ public class SqlInjectionLesson13 implements AssignmentEndpoint {
   @PostMapping("/SqlInjectionMitigations/attack12a")
   @ResponseBody
   public AttackResult completed(@RequestParam String ip) {
+    if (ip != null) {
+      return failed(this).build();
+    }
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement =
             connection.prepareStatement("select ip from servers where ip = ? and hostname = ?")) {

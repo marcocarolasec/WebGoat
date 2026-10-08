@@ -38,6 +38,9 @@ public class SqlInjectionLesson5b implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult completed(@RequestParam String userid, @RequestParam String login_count)
       throws IOException {
+    if (userid != null) {
+      return failed(this).build();
+    }
     return injectableQuery(login_count, userid);
   }
 
