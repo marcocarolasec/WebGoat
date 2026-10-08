@@ -28,10 +28,6 @@ public class StoredCrossSiteScriptingVerifier implements AssignmentEndpoint {
   @PostMapping("/CrossSiteScriptingStored/stored-xss-follow-up")
   @ResponseBody
   public AttackResult completed(@RequestParam String successMessage) {
-    if (successMessage.equals(lessonSession.getValue("randValue"))) {
-      return success(this).feedback("xss-stored-callback-success").build();
-    } else {
-      return failed(this).feedback("xss-stored-callback-failure").build();
-    }
+    return failed(this).feedback("xss-stored-callback-failure").build();
   }
 }

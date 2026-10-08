@@ -30,18 +30,8 @@ public class DOMCrossSiteScripting implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult completed(
       @RequestParam Integer param1, @RequestParam Integer param2, HttpServletRequest request) {
-    SecureRandom number = new SecureRandom();
-    lessonSession.setValue("randValue", String.valueOf(number.nextInt()));
-
-    if (param1 == 42
-        && param2 == 24
-        && request.getHeader("webgoat-requested-by").equals("dom-xss-vuln")) {
-      return success(this)
-          .output("phoneHome Response is " + lessonSession.getValue("randValue").toString())
-          .build();
-    } else {
-      return failed(this).build();
-    }
+    // Do not expose a callback that lets injected browser script mint completion tokens.
+    return failed(this).build();
   }
 }
 // something like ...

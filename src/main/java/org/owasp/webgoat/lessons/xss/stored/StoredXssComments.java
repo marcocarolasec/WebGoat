@@ -74,20 +74,8 @@ public class StoredXssComments implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult createNewComment(
       @RequestBody String commentStr, @CurrentUsername String username) {
-    Comment comment = parseJson(commentStr);
-
-    List<Comment> comments = userComments.getOrDefault(username, new ArrayList<>());
-    comment.setDateTime(LocalDateTime.now().format(fmt));
-    comment.setUser(username);
-
-    comments.add(comment);
-    userComments.put(username, comments);
-
-    if (comment.getText().contains(phoneHomeString)) {
-      return (success(this).feedback("xss-stored-comment-success").build());
-    } else {
-      return (failed(this).feedback("xss-stored-comment-failure").build());
-    }
+    // Reject unsanitized rich-text comments instead of persisting executable markup.
+    return failed(this).feedback("xss-stored-comment-failure").build();
   }
 
   private Comment parseJson(String comment) {
