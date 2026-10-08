@@ -58,11 +58,8 @@ public class HijackSessionAuthenticationProvider implements AuthenticationProvid
   }
 
   protected void authorizedUserAutoLogin() {
-    if (!PROBABILITY_DOUBLE_PREDICATE.test(ThreadLocalRandom.current().nextDouble())) {
-      Authentication authentication = AUTHENTICATION_SUPPLIER.get();
-      authentication.setAuthenticated(true);
-      addSession(authentication.getId());
-    }
+    // Never create authenticated sessions without a successful login. The former background
+    // session generation exposed IDs that could be predicted and replayed by another user.
   }
 
   protected boolean addSession(String sessionId) {

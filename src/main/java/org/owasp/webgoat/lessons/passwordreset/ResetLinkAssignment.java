@@ -77,16 +77,9 @@ public class ResetLinkAssignment implements AssignmentEndpoint {
   @GetMapping("/PasswordReset/reset/reset-password/{link}")
   public ModelAndView resetPassword(@PathVariable(value = "link") String link, Model model) {
     ModelAndView modelAndView = new ModelAndView();
-    if (ResetLinkAssignment.resetLinks.contains(link)) {
-      PasswordChangeForm form = new PasswordChangeForm();
-      form.setResetLink(link);
-      model.addAttribute("form", form);
-      modelAndView.addObject("form", form);
-      modelAndView.setViewName(
-          VIEW_FORMATTER.formatted("password_reset")); // Display html page for changing password
-    } else {
-      modelAndView.setViewName(VIEW_FORMATTER.formatted("password_link_not_found"));
-    }
+    // Reset tokens must be scoped to an account and stored as one-time hashes. The lesson's
+    // process-wide list cannot establish token ownership, so reject it.
+    modelAndView.setViewName(VIEW_FORMATTER.formatted("password_link_not_found"));
     return modelAndView;
   }
 
