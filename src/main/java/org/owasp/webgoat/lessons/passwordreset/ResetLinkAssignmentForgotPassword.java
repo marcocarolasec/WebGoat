@@ -36,26 +36,36 @@ public class ResetLinkAssignmentForgotPassword implements AssignmentEndpoint {
   private final String webWolfPort;
   private final String webWolfURL;
   private final String webWolfMailURL;
+  private final String trustedResetHost;
 
   public ResetLinkAssignmentForgotPassword(
       RestTemplate restTemplate,
       @Value("${webwolf.host}") String webWolfHost,
       @Value("${webwolf.port}") String webWolfPort,
       @Value("${webwolf.url}") String webWolfURL,
-      @Value("${webwolf.mail.url}") String webWolfMailURL) {
+      @Value("${webwolf.mail.url}") String webWolfMailURL,
+      @Value("${webgoat.host}") String webGoatHost,
+      @Value("${webgoat.port}") String webGoatPort) {
     this.restTemplate = restTemplate;
     this.webWolfHost = webWolfHost;
     this.webWolfPort = webWolfPort;
     this.webWolfURL = webWolfURL;
     this.webWolfMailURL = webWolfMailURL;
+    this.trustedResetHost = webGoatHost + ":" + webGoatPort;
   }
 
   @PostMapping("/PasswordReset/ForgotPassword/create-password-reset-link")
   @ResponseBody
   public AttackResult sendPasswordResetLink(
       @RequestParam String email, HttpServletRequest request, @CurrentUsername String username) {
-    // Never build security-sensitive links from an attacker-controlled Host header.
-    return failed(this).feedback("password-reset-disabled").build();
+    String resetLink = UUID.randomUUID().toString();
+    ResetLinkAssignment.resetLinks.add(resetLink);
+    try {
+      sendMailToUser(email, trustedResetHost, resetLink);
+    } catch (Exception e) {
+      return failed(this).output("E-mail can't be send. please try again.").build();
+    }
+    return success(this).feedback("email.send").feedbackArgs(email).build();
   }
 
   private void sendMailToUser(String email, String host, String resetLink) {
