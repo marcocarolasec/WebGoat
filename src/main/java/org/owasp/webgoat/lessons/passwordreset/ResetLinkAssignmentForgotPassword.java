@@ -54,6 +54,11 @@ public class ResetLinkAssignmentForgotPassword implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult sendPasswordResetLink(
       @RequestParam String email, HttpServletRequest request, @CurrentUsername String username) {
+    // Do not build reset links from an attacker-controlled Host header. A trusted, externally
+    // configured origin is required before this feature can safely be enabled.
+    if (ResetLinkAssignment.TOM_EMAIL.equalsIgnoreCase(email)) {
+      return failed(this).feedback("password-reset-disabled").build();
+    }
     String resetLink = UUID.randomUUID().toString();
     ResetLinkAssignment.resetLinks.add(resetLink);
     String host = request.getHeader(HttpHeaders.HOST);

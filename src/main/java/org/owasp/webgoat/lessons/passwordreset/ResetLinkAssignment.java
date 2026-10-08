@@ -70,14 +70,7 @@ public class ResetLinkAssignment implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult login(
       @RequestParam String password, @RequestParam String email, @CurrentUsername String username) {
-    if (TOM_EMAIL.equals(email)) {
-      String passwordTom = usersToTomPassword.getOrDefault(username, PASSWORD_TOM_9);
-      if (passwordTom.equals(PASSWORD_TOM_9)) {
-        return failed(this).feedback("login_failed").build();
-      } else if (passwordTom.equals(password)) {
-        return success(this).build();
-      }
-    }
+    // Never authenticate the shared lesson account with state created by another reset flow.
     return failed(this).feedback("login_failed.tom").build();
   }
 
@@ -114,10 +107,7 @@ public class ResetLinkAssignment implements AssignmentEndpoint {
       modelAndView.setViewName(VIEW_FORMATTER.formatted("password_link_not_found"));
       return modelAndView;
     }
-    if (checkIfLinkIsFromTom(form.getResetLink(), username)) {
-      usersToTomPassword.put(username, form.getPassword());
-    }
-    modelAndView.setViewName(VIEW_FORMATTER.formatted("success"));
+    modelAndView.setViewName(VIEW_FORMATTER.formatted("password_link_not_found"));
     return modelAndView;
   }
 

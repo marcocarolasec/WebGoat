@@ -46,14 +46,7 @@ public class SimpleMailAssignment implements AssignmentEndpoint {
       @RequestParam String email,
       @RequestParam String password,
       @CurrentUsername String webGoatUsername) {
-    String emailAddress = ofNullable(email).orElse("unknown@webgoat.org");
-    String username = extractUsername(emailAddress);
-
-    if (username.equals(webGoatUsername) && StringUtils.reverse(username).equals(password)) {
-      return success(this).build();
-    } else {
-      return failed(this).feedbackArgs("password-reset-simple.password_incorrect").build();
-    }
+    return failed(this).feedbackArgs("password-reset-simple.password_incorrect").build();
   }
 
   @PostMapping(
@@ -62,8 +55,8 @@ public class SimpleMailAssignment implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult resetPassword(
       @RequestParam String emailReset, @CurrentUsername String username) {
-    String email = ofNullable(emailReset).orElse("unknown@webgoat.org");
-    return sendEmail(extractUsername(email), email, username);
+    // Never generate or email a deterministic password derived from the username.
+    return failed(this).feedback("password-reset-simple.disabled").build();
   }
 
   private String extractUsername(String email) {

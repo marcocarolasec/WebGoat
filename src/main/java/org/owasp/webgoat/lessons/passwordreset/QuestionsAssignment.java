@@ -39,22 +39,7 @@ public class QuestionsAssignment implements AssignmentEndpoint {
       consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
   @ResponseBody
   public AttackResult passwordReset(@RequestParam Map<String, Object> json) {
-    String securityQuestion = (String) json.getOrDefault("securityQuestion", "");
-    String username = (String) json.getOrDefault("username", "");
-
-    if ("webgoat".equalsIgnoreCase(username.toLowerCase())) {
-      return failed(this).feedback("password-questions-wrong-user").build();
-    }
-
-    String validAnswer = COLORS.get(username.toLowerCase());
-    if (validAnswer == null) {
-      return failed(this)
-          .feedback("password-questions-unknown-user")
-          .feedbackArgs(username)
-          .build();
-    } else if (validAnswer.equals(securityQuestion)) {
-      return success(this).build();
-    }
-    return failed(this).build();
+    // Publicly discoverable answers must not be usable to reset an account.
+    return failed(this).feedback("password-questions-disabled").build();
   }
 }
