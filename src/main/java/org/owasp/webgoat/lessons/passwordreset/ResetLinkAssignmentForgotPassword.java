@@ -54,28 +54,8 @@ public class ResetLinkAssignmentForgotPassword implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult sendPasswordResetLink(
       @RequestParam String email, HttpServletRequest request, @CurrentUsername String username) {
-    // Do not build reset links from an attacker-controlled Host header. A trusted, externally
-    // configured origin is required before this feature can safely be enabled.
-    if (ResetLinkAssignment.TOM_EMAIL.equalsIgnoreCase(email)) {
-      return failed(this).feedback("password-reset-disabled").build();
-    }
-    String resetLink = UUID.randomUUID().toString();
-    ResetLinkAssignment.resetLinks.add(resetLink);
-    String host = request.getHeader(HttpHeaders.HOST);
-    if (ResetLinkAssignment.TOM_EMAIL.equals(email)
-        && (host.contains(webWolfPort)
-            && host.contains(webWolfHost))) { // User indeed changed the host header.
-      ResetLinkAssignment.userToTomResetLink.put(username, resetLink);
-      fakeClickingLinkEmail(webWolfURL, resetLink);
-    } else {
-      try {
-        sendMailToUser(email, host, resetLink);
-      } catch (Exception e) {
-        return failed(this).output("E-mail can't be send. please try again.").build();
-      }
-    }
-
-    return success(this).feedback("email.send").feedbackArgs(email).build();
+    // Never build security-sensitive links from an attacker-controlled Host header.
+    return failed(this).feedback("password-reset-disabled").build();
   }
 
   private void sendMailToUser(String email, String host, String resetLink) {

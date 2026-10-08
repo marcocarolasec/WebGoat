@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.DoublePredicate;
 import java.util.function.Supplier;
@@ -31,7 +32,7 @@ public class HijackSessionAuthenticationProvider implements AuthenticationProvid
 
   private static final DoublePredicate PROBABILITY_DOUBLE_PREDICATE = pr -> pr < 0.75;
   private static final Supplier<String> GENERATE_SESSION_ID =
-      () -> ++id + "-" + Instant.now().toEpochMilli();
+      () -> UUID.randomUUID().toString();
   public static final Supplier<Authentication> AUTHENTICATION_SUPPLIER =
       () -> Authentication.builder().id(GENERATE_SESSION_ID.get()).build();
 

@@ -33,9 +33,6 @@ public class LandingAssignment implements AssignmentEndpoint {
   @PostMapping("/WebWolf/landing")
   @ResponseBody
   public AttackResult click(String uniqueCode, @CurrentUsername String username) {
-    if (StringUtils.reverse(username).equals(uniqueCode)) {
-      return success(this).build();
-    }
     return failed(this).feedback("webwolf.landing_wrong").build();
   }
 

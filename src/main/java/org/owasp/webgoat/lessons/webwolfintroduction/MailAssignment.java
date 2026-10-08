@@ -71,10 +71,6 @@ public class MailAssignment implements AssignmentEndpoint {
   @PostMapping("/WebWolf/mail")
   @ResponseBody
   public AttackResult completed(@RequestParam String uniqueCode, @CurrentUsername String username) {
-    if (uniqueCode.equals(StringUtils.reverse(username))) {
-      return success(this).build();
-    } else {
-      return failed(this).feedbackArgs("webwolf.code_incorrect").feedbackArgs(uniqueCode).build();
-    }
+    return failed(this).feedbackArgs("webwolf.code_incorrect").feedbackArgs(uniqueCode).build();
   }
 }
