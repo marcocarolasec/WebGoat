@@ -29,6 +29,9 @@ public class SqlInjectionChallengeLogin implements AssignmentEndpoint {
       @RequestParam("username_login") String username,
       @RequestParam("password_login") String password)
       throws Exception {
+    if ("tom".equalsIgnoreCase(username)) {
+      return failed(this).feedback("NoResultsMatched").build();
+    }
     try (var connection = dataSource.getConnection()) {
       var statement =
           connection.prepareStatement(

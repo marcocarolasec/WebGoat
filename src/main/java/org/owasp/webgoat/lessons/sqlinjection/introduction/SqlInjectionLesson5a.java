@@ -42,6 +42,9 @@ public class SqlInjectionLesson5a implements AssignmentEndpoint {
   }
 
   protected AttackResult injectableQuery(String accountName) {
+    if (accountName == null || !accountName.matches("[A-Za-z0-9_-]{1,64}")) {
+      return failed(this).feedback("sql-injection.5a.no.results").build();
+    }
     String query = "";
     try (Connection connection = dataSource.getConnection()) {
       query =

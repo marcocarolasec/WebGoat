@@ -48,6 +48,9 @@ public class SqlInjectionLesson6a implements AssignmentEndpoint {
   }
 
   public AttackResult injectableQuery(String accountName) {
+    if (accountName == null || !accountName.matches("[A-Za-z0-9_-]{1,64}")) {
+      return failed(this).feedback("sql-injection.advanced.6a.no.results").build();
+    }
     String query = "";
     try (Connection connection = dataSource.getConnection()) {
       boolean usedUnion = this.unionQueryChecker(accountName);
