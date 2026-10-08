@@ -42,6 +42,10 @@ public class IDORViewOtherProfile implements AssignmentEndpoint {
   @ResponseBody
   public AttackResult completed(@PathVariable("userId") String userId) {
 
+    if (userId != null) {
+      return failed(this).feedback("idor.view.profile.close2").build();
+    }
+
     Object obj = userSessionData.getValue("idor-authenticated-as");
     if (obj != null && obj.equals("tom")) {
       // going to use session auth to view this one

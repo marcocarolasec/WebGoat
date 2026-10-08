@@ -26,6 +26,9 @@ public class IDORDiffAttributes implements AssignmentEndpoint {
   @PostMapping("/IDOR/diff-attributes")
   @ResponseBody
   public AttackResult completed(@RequestParam String attributes) {
+    if (attributes != null) {
+      return failed(this).feedback("idor.diff.failure").build();
+    }
     attributes = attributes.trim();
     String[] diffAttribs = attributes.split(",");
     if (diffAttribs.length < 2) {

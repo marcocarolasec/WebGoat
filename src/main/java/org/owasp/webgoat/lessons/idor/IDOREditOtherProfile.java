@@ -42,6 +42,10 @@ public class IDOREditOtherProfile implements AssignmentEndpoint {
   public AttackResult completed(
       @PathVariable("userId") String userId, @RequestBody UserProfile userSubmittedProfile) {
 
+    if (userId != null) {
+      return failed(this).feedback("idor.edit.profile.failure4").build();
+    }
+
     String authUserId = (String) userSessionData.getValue("idor-authenticated-user-id");
     // this is where it starts ... accepting the user submitted ID and assuming it will be the same
     // as the logged in userId and not checking for proper authorization

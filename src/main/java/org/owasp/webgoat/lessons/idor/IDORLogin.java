@@ -47,6 +47,9 @@ public class IDORLogin implements AssignmentEndpoint {
   @PostMapping("/IDOR/login")
   @ResponseBody
   public AttackResult completed(@RequestParam String username, @RequestParam String password) {
+    if (username != null) {
+      return failed(this).feedback("idor.login.failure").build();
+    }
     initIDORInfo();
 
     if (idorUserInfo.containsKey(username)) {

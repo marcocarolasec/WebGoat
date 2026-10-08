@@ -32,6 +32,9 @@ public class IDORViewOwnProfileAltUrl implements AssignmentEndpoint {
   @PostMapping("/IDOR/profile/alt-path")
   @ResponseBody
   public AttackResult completed(@RequestParam String url) {
+    if (url != null) {
+      return failed(this).feedback("idor.view.own.profile.failure1").build();
+    }
     try {
       if (userSessionData.getValue("idor-authenticated-as").equals("tom")) {
         // going to use session auth to view this one
