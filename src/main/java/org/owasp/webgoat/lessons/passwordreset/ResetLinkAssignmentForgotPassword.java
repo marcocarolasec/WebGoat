@@ -93,7 +93,8 @@ public class ResetLinkAssignmentForgotPassword implements AssignmentEndpoint {
       HttpEntity httpEntity = new HttpEntity(httpHeaders);
       new RestTemplate()
           .exchange(
-              String.format("%s/PasswordReset/reset/reset-password/%s", webWolfURL, resetLink),
+              String.format(
+                  "%s/landing/PasswordReset/reset/reset-password/%s", webWolfURL, resetLink),
               HttpMethod.GET,
               httpEntity,
               Void.class);
