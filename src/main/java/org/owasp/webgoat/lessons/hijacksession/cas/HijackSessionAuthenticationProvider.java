@@ -6,8 +6,8 @@ package org.owasp.webgoat.lessons.hijacksession.cas;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.function.DoublePredicate;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
@@ -26,10 +26,15 @@ public class HijackSessionAuthenticationProvider implements AuthenticationProvid
 
   private Queue<String> sessions = new LinkedList<>();
   protected static final int MAX_SESSIONS = 50;
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
   private static final DoublePredicate PROBABILITY_DOUBLE_PREDICATE = pr -> pr < 0.75;
   private static final Supplier<String> GENERATE_SESSION_ID =
-      () -> UUID.randomUUID().toString();
+      () -> {
+        byte[] randomBytes = new byte[32];
+        SECURE_RANDOM.nextBytes(randomBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+      };
   public static final Supplier<Authentication> AUTHENTICATION_SUPPLIER =
       () -> Authentication.builder().id(GENERATE_SESSION_ID.get()).build();
 
@@ -55,7 +60,7 @@ public class HijackSessionAuthenticationProvider implements AuthenticationProvid
   }
 
   protected void authorizedUserAutoLogin() {
-    if (!PROBABILITY_DOUBLE_PREDICATE.test(ThreadLocalRandom.current().nextDouble())) {
+    if (!PROBABILITY_DOUBLE_PREDICATE.test(SECURE_RANDOM.nextDouble())) {
       Authentication authentication = AUTHENTICATION_SUPPLIER.get();
       authentication.setAuthenticated(true);
       addSession(authentication.getId());
