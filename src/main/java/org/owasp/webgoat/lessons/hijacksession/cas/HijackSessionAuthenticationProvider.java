@@ -6,8 +6,6 @@ package org.owasp.webgoat.lessons.hijacksession.cas;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.function.DoublePredicate;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
@@ -26,15 +24,9 @@ public class HijackSessionAuthenticationProvider implements AuthenticationProvid
 
   private Queue<String> sessions = new LinkedList<>();
   protected static final int MAX_SESSIONS = 50;
-  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
-
   private static final DoublePredicate PROBABILITY_DOUBLE_PREDICATE = pr -> pr < 0.75;
   private static final Supplier<String> GENERATE_SESSION_ID =
-      () -> {
-        byte[] randomBytes = new byte[32];
-        SECURE_RANDOM.nextBytes(randomBytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
-      };
+      () -> "0-" + System.currentTimeMillis();
   public static final Supplier<Authentication> AUTHENTICATION_SUPPLIER =
       () -> Authentication.builder().id(GENERATE_SESSION_ID.get()).build();
 

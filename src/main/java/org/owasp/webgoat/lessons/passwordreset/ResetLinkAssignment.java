@@ -74,8 +74,6 @@ public class ResetLinkAssignment implements AssignmentEndpoint {
       String passwordTom = usersToTomPassword.getOrDefault(username, PASSWORD_TOM_9);
       if (passwordTom.equals(PASSWORD_TOM_9)) {
         return failed(this).feedback("login_failed").build();
-      } else if (passwordTom.equals(password)) {
-        return success(this).build();
       }
     }
     return failed(this).feedback("login_failed.tom").build();
